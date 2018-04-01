@@ -62,17 +62,20 @@ Below are the instructions to install all necessary libraries to use the RobotPy
 
      #include_next<stdlib.h>
      could not find stdlib.h
+     
 If a header file cannot be located (for example stdlib.h), then a work around is replacing the #include_next with #include . This can be done using the instructions below:
 
  1. Use "cd" to navigate to /usr/include/c++/6/
  2. Give yourself permission to edit the erroneous file (don't include the asterisks!):
  
-     sudo chattr -i *insert file name here*
-     lsattr *file name*
-     sudo chown pi:pi *file name*
+        sudo chattr -i *insert file name here*
+        lsattr *file name*
+        sudo chown pi:pi *file name*
+    
  3. Begin editing file:
  
-     vi *file name*
+        vi *file name*
+        
  4. Use arrow keys to move cursor, type "x" to delete "_next"
  5. Save by typing ":w" and quit with ":q"
  6. Run "make -jv4" again, and that error will disappear.
