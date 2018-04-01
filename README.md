@@ -87,4 +87,4 @@ If a header file cannot be located (for example stdlib.h), then a work around is
 
 ## Finally, RobotPy-CSCore!
 
-     pip3 isntall robotpy-cscore
+     pip3 install robotpy-cscore
