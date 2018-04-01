@@ -83,8 +83,8 @@ If a header file cannot be located (for example stdlib.h), then a work around is
  ## PyBind
  I don't know what this is but it is necessary for cscore to run. I think it allows for python/c++ integration.
  
-      pip3 install "pybind>=2.2"
+      sudo pip3 install "pybind>=2.2"
 
 ## Finally, RobotPy-CSCore!
 
-     pip3 install robotpy-cscore
+     sudo pip3 install robotpy-cscore
