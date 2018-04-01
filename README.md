@@ -17,10 +17,10 @@ In this document I will go over how to install everything needed to run vision c
         Pass: raspberry
  Your Pi is now ready to go!
  
-## Installation of dependencies
+# Installation of dependencies
 Below are the instructions to install all necessary libraries to use the RobotPy-CScore API on the Pi
 
-### OpenCV
+## OpenCV
  Sorry for the block of commands. Copy and paste each line. Google any errors you have that I don't cover at the end.
  
     sudo apt-get update
@@ -59,4 +59,29 @@ Below are the instructions to install all necessary libraries to use the RobotPy
      sudo ldconfig
 
 ### Errors you may get
-        
+
+     #include_next<stdlib.h>
+     could not find stdlib.h
+If a header file cannot be located (for example stdlib.h), then a work around is replacing the #include_next with #include . This can be done using the instructions below:
+
+ 1. Use "cd" to navigate to /usr/include/c++/6/
+ 2. Give yourself permission to edit the erroneous file (don't include the asterisks!):
+ 
+     sudo chattr -i *insert file name here*
+     lsattr *file name*
+     sudo chown pi:pi *file name*
+ 3. Begin editing file:
+ 
+     vi *file name*
+ 4. Use arrow keys to move cursor, type "x" to delete "_next"
+ 5. Save by typing ":w" and quit with ":q"
+ 6. Run "make -jv4" again, and that error will disappear.
+ 
+ ## PyBind
+ I don't know what this is but it is necessary for cscore to run. I think it allows for python/c++ integration.
+ 
+      pip3 install "pybind>=2.2"
+
+## Finally, RobotPy-CSCore!
+
+     pip3 isntall robotpy-cscore
