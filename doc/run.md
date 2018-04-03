@@ -1,4 +1,6 @@
 # How to have the pi automatically run client.py
+You may know that you can run a python file in a CLI with python3 client.py
+We are going to edit the file /etc/rc.local. The script already runs on startup, and all it does is output the Pi's IP address once, so you can easily add our command at the end of the file.
 
  1. Navigate to /etc/
  2. Give yourself permssion to edit /etc/rc.local
