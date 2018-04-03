@@ -33,6 +33,18 @@ def main():
     while True:
         # Main loop
 
+        # Tell the CvSink to grab a frame from the camera and put it
+        # in the source image.  If there is an error notify the output.
+        time, img = cvsink.grabFrame(img)
+        if time == 0: continue
+        pipe.process(img)
+
+        cx, cy = pipe.get_centeroid()
+        area = pipe.get_area()
+        table.getEntry("centerx").setDouble(cx)
+        table.getEntry("centery").setDouble(cy)
+        table.getEntry("area").setDouble(area)
+
         # Gets mode of Network Tables, puts that to stdout
         tmp = []
         for n in modes.keys():
@@ -41,17 +53,6 @@ def main():
         if len(tmp) != 0:
             print("NetworkTables mode:", " ".join(tmp))
             last_modes = tmp
-
-        # Tell the CvSink to grab a frame from the camera and put it
-        # in the source image.  If there is an error notify the output.
-        time, img = cvsink.grabFrame(img)
-        pipe.process(img)
-
-        cx, cy = pipe.get_centeroid()
-        area = pipe.get_area()
-        table.getEntry("centerx").setDouble(cx)
-        table.getEntry("centery").setDouble(cy)
-        table.getEntry("area").setDouble(area)
 
     #print(pipe.process(cv2.imread("img\cubecorner.jpg",1))) #to test pipeline
 
