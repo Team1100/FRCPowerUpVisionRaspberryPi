@@ -9,4 +9,6 @@ VisionRaspberryPi is a repository dedicated to you, a person who wants to learn 
 
 ## How do I write the interface with the USB camera and with the robot?
 
+## [How do I get the pi to run my code (client.py)?](https://github.com/Team1100/VisionRasperryPi/blob/master/run.md)
+
 ## How do I incorporate this into the robot code?
