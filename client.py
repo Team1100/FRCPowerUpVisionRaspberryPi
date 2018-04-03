@@ -2,18 +2,16 @@ import numpy as np
 import cv2
 from grip import GripPipeline
 from networktables import NetworkTables, NetworkTablesInstance
-from networktables.util import ntproperty
-import logging
 from cscore import CameraServer
+import logging
 logging.basicConfig(level=logging.DEBUG)
 """
 Run this file to process vision code.
-
-0,0 is top left.
-
+Please go to README.md to learn how to use this properly
 By Grant Perkins, 2018
 """
 def main():
+    # Initialize pipeline, Network Tables, image, camera server
     pipe = GripPipeline()
     NetworkTables.initialize(server="roborio-1100-frc.local")
     table = NetworkTablesInstance.getDefault().getTable('SmartDashboard')
@@ -30,10 +28,12 @@ def main():
         # in the source image.  If there is an error notify the output.
         time, img = cvsink.grabFrame(img)
         cx, cy = pipe.process(img)
-        table.getEntry("centerx").forceSetNumber(cx)
-        table.getEntry("centery").forceSetNumber(cy)
+        table.getEntry("centerx").setNumber(cx)
+        table.getEntry("centery").setNumber(cy)
 
     #print(pipe.process(cv2.imread("cubecorner.jpg",1))) #to test pipeline
 
 if __name__ == "__main__":
+    # This if statement is basically Python's equivalent of Java's
+    # public static void main(String args)
     main()
