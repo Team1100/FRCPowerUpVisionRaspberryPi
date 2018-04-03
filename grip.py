@@ -59,7 +59,6 @@ class GripPipeline:
         # Step Convex_Hulls0:
         self.__convex_hulls_contours = self.filter_contours_output
         self.convex_hulls_output = self.__convex_hulls(self.__convex_hulls_contours)
-        return self.getcenteroid(self.convex_hulls_output)
 
 
     @staticmethod
@@ -149,13 +148,20 @@ class GripPipeline:
         output = []
         for contour in input_contours:
             output.append(cv2.convexHull(contour))
+        output = max(output, key=cv2.contourArea)
         return output
 
-    @staticmethod
-    def getcenteroid(hulls):
+    def get_area(self):
+        """
+        By Grant Perkins 2018
+        """
+        return cv2.contourArea(self.convex_hulls_output)
+
+    def get_centeroid(self):
         """
         By Grant Perkins, 2018
         """
+        hulls = self.convex_hulls_output
         try:
             M = cv2.moments(hulls[0])
             cx = int(M['m10'] / M['m00'])
