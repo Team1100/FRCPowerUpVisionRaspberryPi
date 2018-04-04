@@ -35,11 +35,12 @@ def main():
     NetworkTables.initialize(server='10.11.00.2')
     NetworkTables.addConnectionListener(listener, immediateNotify=True)
 
+    #Wait until connected
+    #Exits when cond.notify() is run
     with cond:
         print("Waiting")
         cond.wait()
 
-    # Insert your processing code here
     print("Connected!")
     table = NetworkTablesInstance.getDefault().getTable("Pi")
 
@@ -52,9 +53,9 @@ def main():
         if time == 0:
             continue
         pipe.process(img)
-
         cx, cy = pipe.get_centeroid()
         area = pipe.get_area()
+
         table.putDouble("centerx", cx)
         table.putDouble("centery", cy)
         table.putDouble("area", area)
