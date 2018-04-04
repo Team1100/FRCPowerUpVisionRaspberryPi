@@ -3,6 +3,7 @@ import cv2
 from grip import GripPipeline
 from networktables import NetworkTables, NetworkTablesInstance
 from cscore import CameraServer
+import threading
 import logging
 logging.basicConfig(level=logging.DEBUG)
 """
@@ -11,10 +12,8 @@ Please go to README.md to learn how to use this properly
 By Grant Perkins, 2018
 """
 def main():
-    # Initialize pipeline, Network Tables, image, camera server
+    # Initialize pipeline, image, camera server
     pipe = GripPipeline()
-    NetworkTables.initialize(server="roborio-1100-frc.local")
-    table = NetworkTablesInstance.getDefault().getTable('SmartDashboard')
     img = np.zeros(shape=(480, 640, 3), dtype=np.uint8)
 
     cs = CameraServer.getInstance()
@@ -25,10 +24,24 @@ def main():
     # Get a CvSink. This will capture images from the camera
     cvsink = cs.getVideo()
 
-    #Status of Network Tables
-    modes = {1: "Server", 2: "Client", 4: "Starting", 8: "Failure", 16: "Test"}
-    last_modes = []
-    mode = NetworkTables.getNetworkMode()
+    #Wait on vision processing until connected to Network Tables
+    cond = threading.Condition()
+
+    def listener(connected, info):
+        print(info, '; Connected=%s' % connected)
+        with cond:
+            cond.notify()
+
+    NetworkTables.initialize(server='10.11.00.2')
+    NetworkTables.addConnectionListener(listener, immediateNotify=True)
+
+    with cond:
+        print("Waiting")
+        cond.wait()
+
+    # Insert your processing code here
+    print("Connected!")
+    table = NetworkTablesInstance.getDefault().getTable("Pi")
 
     while True:
         # Main loop
@@ -36,23 +49,15 @@ def main():
         # Tell the CvSink to grab a frame from the camera and put it
         # in the source image.  If there is an error notify the output.
         time, img = cvsink.grabFrame(img)
-        if time == 0: continue
+        if time == 0:
+            continue
         pipe.process(img)
 
         cx, cy = pipe.get_centeroid()
         area = pipe.get_area()
-        table.getEntry("centerx").setDouble(cx)
-        table.getEntry("centery").setDouble(cy)
-        table.getEntry("area").setDouble(area)
-
-        # Gets mode of Network Tables, puts that to stdout
-        tmp = []
-        for n in modes.keys():
-            if modes[n] not in last_modes and mode & n:
-                tmp.append(modes[n])
-        if len(tmp) != 0:
-            print("NetworkTables mode:", " ".join(tmp))
-            last_modes = tmp
+        table.putDouble("centerx", cx)
+        table.putDouble("centery", cy)
+        table.putDouble("area", area)
 
     #print(pipe.process(cv2.imread("img\cubecorner.jpg",1))) #to test pipeline
 
