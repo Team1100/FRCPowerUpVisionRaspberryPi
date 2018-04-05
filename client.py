@@ -6,12 +6,13 @@ from cscore import CameraServer
 import threading
 import logging
 logging.basicConfig(level=logging.DEBUG)
-"""
-Run this file to process vision code.
-Please go to README.md to learn how to use this properly
-By Grant Perkins, 2018
-"""
+
+
 def main():
+    """Run this file to process vision code.
+    Please go to README.md to learn how to use this properly
+    By Grant Perkins, 2018
+    """
     # Initialize pipeline, image, camera server
     pipe = GripPipeline()
     img = np.zeros(shape=(480, 640, 3), dtype=np.uint8)
@@ -24,23 +25,24 @@ def main():
     # Get a CvSink. This will capture images from the camera
     cvsink = cs.getVideo()
 
-    #Wait on vision processing until connected to Network Tables
+    # Wait on vision processing until connected to Network Tables
     cond = threading.Condition()
+    notified = [False]
 
     def listener(connected, info):
         print(info, '; Connected=%s' % connected)
         with cond:
+            notified[0] = True
             cond.notify()
 
     NetworkTables.initialize(server='10.11.00.2')
     NetworkTables.addConnectionListener(listener, immediateNotify=True)
 
-    #Wait until connected
-    #Exits when cond.notify() is run
     with cond:
         print("Waiting")
-        cond.wait()
-
+        if not notified[0]:
+            # Wait until connected. cond.wait() is exited once listener is called by ConnectionListener
+            cond.wait()
     print("Connected!")
     table = NetworkTablesInstance.getDefault().getTable("Pi")
 

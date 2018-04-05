@@ -148,14 +148,18 @@ class GripPipeline:
         output = []
         for contour in input_contours:
             output.append(cv2.convexHull(contour))
-        output = max(output, key=cv2.contourArea)
-        return output
+        if output:
+            output = max(output, key=cv2.contourArea)
+            return output
+        return None
 
     def get_area(self):
         """
         By Grant Perkins 2018
         """
-        return cv2.contourArea(self.convex_hulls_output)
+        if self.convex_hulls_output is not None:
+            return cv2.contourArea(self.convex_hulls_output)
+        return -1
 
     def get_centeroid(self):
         """
