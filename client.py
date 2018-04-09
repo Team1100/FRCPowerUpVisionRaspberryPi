@@ -7,6 +7,7 @@ import threading
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+import time
 
 def main():
     """Run this file to process vision code.
@@ -21,10 +22,10 @@ def main():
     camera = cs.startAutomaticCapture()
     camera.setResolution(640, 480)
     camera.setFPS(20)
+    camera.setExposureManual(40)
 
     # Get a CvSink. This will capture images from the camera
     cvsink = cs.getVideo()
-
     # Wait on vision processing until connected to Network Tables
     cond = threading.Condition()
     notified = [False]
@@ -35,7 +36,7 @@ def main():
             notified[0] = True
             cond.notify()
 
-    NetworkTables.initialize(server='10.11.00.2')
+    NetworkTables.initialize(server='roborio-1100-frc.local')
     NetworkTables.addConnectionListener(listener, immediateNotify=True)
 
     with cond:
@@ -46,21 +47,27 @@ def main():
     print("Connected!")
     table = NetworkTablesInstance.getDefault().getTable("Pi")
 
+    imagetaken = False
+    last = -1
     while True:
-        # Main loop
-
+        time.sleep(.4)
         # Tell the CvSink to grab a frame from the camera and put it
         # in the source image.  If there is an error notify the output.
-        time, img = cvsink.grabFrame(img)
-        if time == 0:
+        t, img = cvsink.grabFrame(img)
+        if t == 0:
             continue
         pipe.process(img)
         cx, cy = pipe.get_centeroid()
         area = pipe.get_area()
+        print(cx)
 
-        table.putDouble("centerx", cx)
-        table.putDouble("centery", cy)
-        table.putDouble("area", area)
+        if cx != last and cx != -1:
+            print(cx)
+            last = cx
+
+        table.getEntry("centerx").setDouble(cx)
+        table.getEntry("centery").setDouble(cy)
+        table.getEntry("area").setDouble(area)
 
     #print(pipe.process(cv2.imread("img\cubecorner.jpg",1))) #to test pipeline
 

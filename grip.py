@@ -1,4 +1,7 @@
 import cv2
+import numpy
+import math
+from enum import Enum
 
 class GripPipeline:
     """
@@ -9,29 +12,29 @@ class GripPipeline:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__hsv_threshold_hue = [0, 180]
-        self.__hsv_threshold_saturation = [133, 255]
-        self.__hsv_threshold_value = [76, 255]
+        self.__hsv_threshold_hue = [19.424460431654676, 55.597269624573364]
+        self.__hsv_threshold_saturation = [215.55755395683454, 255.0]
+        self.__hsv_threshold_value = [116.95143884892087, 255.0]
 
         self.hsv_threshold_output = None
 
         self.__find_contours_input = self.hsv_threshold_output
-        self.__find_contours_external_only = False
+        self.__find_contours_external_only = True
 
         self.find_contours_output = None
 
         self.__filter_contours_contours = self.find_contours_output
         self.__filter_contours_min_area = 4000.0
-        self.__filter_contours_min_perimeter = 0
-        self.__filter_contours_min_width = 0
-        self.__filter_contours_max_width = 1000
-        self.__filter_contours_min_height = 0
-        self.__filter_contours_max_height = 1000
+        self.__filter_contours_min_perimeter = 0.0
+        self.__filter_contours_min_width = 0.0
+        self.__filter_contours_max_width = 1000.0
+        self.__filter_contours_min_height = 0.0
+        self.__filter_contours_max_height = 1000.0
         self.__filter_contours_solidity = [0, 100]
-        self.__filter_contours_max_vertices = 1000000
-        self.__filter_contours_min_vertices = 0
-        self.__filter_contours_min_ratio = 0
-        self.__filter_contours_max_ratio = 1000
+        self.__filter_contours_max_vertices = 1000000.0
+        self.__filter_contours_min_vertices = 0.0
+        self.__filter_contours_min_ratio = 0.0
+        self.__filter_contours_max_ratio = 1000.0
 
         self.filter_contours_output = None
 
@@ -58,7 +61,7 @@ class GripPipeline:
 
         # Step Convex_Hulls0:
         self.__convex_hulls_contours = self.filter_contours_output
-        self.convex_hulls_output = self.__convex_hulls(self.__convex_hulls_contours)
+        (self.convex_hulls_output) = self.__convex_hulls(self.__convex_hulls_contours)
 
 
     @staticmethod
@@ -148,28 +151,31 @@ class GripPipeline:
         output = []
         for contour in input_contours:
             output.append(cv2.convexHull(contour))
-        if output:
-            output = max(output, key=cv2.contourArea)
-            return output
-        return None
+        return output
 
     def get_area(self):
         """
         By Grant Perkins 2018
         """
-        if self.convex_hulls_output is not None:
-            return cv2.contourArea(self.convex_hulls_output)
-        return -1
+        try:
+            return cv2.contourArea(self.convex_hulls_output[0])
+        except:
+            return -1
 
     def get_centeroid(self):
         """
         By Grant Perkins, 2018
         """
-        hulls = self.convex_hulls_output
         try:
+            hulls = self.convex_hulls_output
             M = cv2.moments(hulls[0])
             cx = int(M['m10'] / M['m00'])
             cy = int(M['m01'] / M['m00'])
             return [cx, cy]
+        except ZeroDivisionError:
+            print("Zero division error")
+            print([int(M['m10']), int(M['m01'])])
         except:
-            return [-1, -1]
+            print("No cube!")
+        return [-1, -1]
+
